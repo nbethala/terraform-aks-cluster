@@ -1,0 +1,20 @@
+# Terraform state and backups
+*.tfstate
+*.tfstate.backup
+terraform.tfvars
+
+# Terraform crash logs
+crash.log
+
+# Terraform CLI configuration
+.terraformrc
+.terraform/
+
+# Local kubeconfig file
+kubeconfig
+
+# SSH keys (if generated locally)
+*.pem
+*.key
+id_rsa
+id_rsa.pub
