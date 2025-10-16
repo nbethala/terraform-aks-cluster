@@ -42,6 +42,7 @@ module "keyvault" {
 }
 
 resource "azurerm_key_vault_secret" "example" {
+  provider     = azurerm.sp
   name         = module.ServicePrincipal.client_id
   value        = module.ServicePrincipal.client_secret
   key_vault_id = module.keyvault.keyvault_id
