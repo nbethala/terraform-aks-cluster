@@ -1,4 +1,8 @@
-❌ 403 Forbidden: AuthorizationFailed
+# 🛠️ Troubleshooting Summary
+This section documents common issues encountered during AKS provisioning and teardown, along with validated recovery steps. Topics include:
+
+
+### ❌ 403 Forbidden: Authorization Failed
 Error:
 
 text
@@ -17,7 +21,7 @@ Assign to: nb-aks-sp (your Service Principal)
 
 ⚠️ After assigning, run az login to refresh credentials.
 
-🔁 Fresh az login Required
+### 🔁 Fresh az login Required
 Symptoms:
 
 Terraform fails to authenticate
@@ -28,12 +32,14 @@ Provider cache errors
 
 Fix: Run:
 
-bash
+```
 az account clear
 az login
+```
+
 This refreshes your session and clears stale tokens.
 
-Provider Alias Not Recognized in Modules
+### Provider Alias Not Recognized in Modules
 Warning:
 
 text
@@ -52,7 +58,7 @@ terraform {
 }
 
 
-❌ features = {} Syntax Error
+### ❌ features = {} Syntax Error
 Error:
 
 text
@@ -71,27 +77,30 @@ provider "azurerm" {
 }
 
 
-## ❌ Key Vault Secret Access Denied
+### ❌ Key Vault Secret Access Denied
 
 **Error:**
-```text
+```
 Caller is not authorized to perform action 'Microsoft.KeyVault/vaults/secrets/getSecret/action'
+```
 Fix: Assign Key Vault Secrets Officer role to the Service Principal in Azure Portal → Key Vault → Access Control (IAM).
 
 
-❌ AKS Availability Zone Not Supported
+### ❌ AKS Availability Zone Not Supported
 Error:
 
 text
 The zone(s) '2' for resource 'defaultpool' is not supported in location 'eastus'
+
 Fix: Remove or adjust availability_zones in your AKS module. East US may not support zones for AKS in your configuration.
 
 
-❌ AKS VM Size Not Allowed
+### ❌ AKS VM Size Not Allowed
 Error:
 
 text
 The VM size of Standard_DS2_v2 is not allowed in your subscription in location 'eastus'
+
 Fix: Use one of the allowed VM sizes listed in the error message (e.g., Standard_A2_v2). Update your AKS module accordingly.
 
 
