@@ -1,6 +1,6 @@
-📦 Modular AKS Cluster Provisioning with Terraform, Azure Key Vault, and Service Principal
+# 📦 Modular AKS Cluster Provisioning with Terraform, Azure Key Vault, and Service Principal
 
-🎯 Project Goal
+## 🎯 Project Goal
 Provision a secure, production-ready Azure Kubernetes Service (AKS) cluster using modular Terraform architecture. Integrate Azure Key Vault for secret management and use a scoped Service Principal for authentication and RBAC.
 
 ## 🔧 Setup Guide
@@ -20,8 +20,8 @@ Provision a secure, production-ready Azure Kubernetes Service (AKS) cluster usin
 For troubleshooting, see [troubleshooting.md](./troubleshooting.md)
 
 
-🧱 Project Structure
-plaintext
+### 🧱 Project Structure
+```
 tf-aks/
 ├── main.tf
 ├── variables.tf
@@ -30,56 +30,73 @@ tf-aks/
 ├── terraform.tfvars
 ├── troubleshooting.md
 ├── README.md
+├── setup-guide.md
+├── Terraform-overview.md
 ├── modules/
 │   ├── ServicePrincipal/
 │   ├── keyvault/
 │   └── aks/
 
+```
 
-🗂️ Modules Overview
+### 🗂️ Modules Overview
 Module	Purpose
-ServicePrincipal	Creates Azure AD App, SP, password, and outputs credentials
-keyvault	Provisions Key Vault and stores SP secret securely
-aks	Deploys AKS cluster using SP credentials and outputs kubeconfig
-🔐 Identity and Access Flow
-Terraform creates a Service Principal
+ - ServicePrincipal	Creates Azure AD App, SP, password, and outputs credentials
 
-SP is granted Contributor role on the subscription
+ - keyvault	Provisions Key Vault and stores SP secret securely
+ - aks	Deploys AKS cluster using SP credentials and outputs kubeconfig
+   
+### 🔐 Identity and Access Flow
+ - Terraform creates a Service Principal
 
-SP is granted Key Vault Secrets Officer on the Key Vault
+ - SP is granted Contributor role on the subscription
 
-SP credentials are stored in Key Vault
+ - SP is granted Key Vault Secrets Officer on the Key Vault
 
-AKS cluster is provisioned using SP credentials
+ - SP credentials are stored in Key Vault
 
-Kubeconfig is exported locally for kubectl access
+ - AKS cluster is provisioned using SP credentials
 
-🛠️ Implementation Steps
-1. Initialize Project
-bash
+- Kubeconfig is exported locally for kubectl access
+
+### 🛠️ Implementation Steps
+#### 1. Initialize Project
+```
 terraform init
-2. Create Service Principal
+```
+
+#### 2. Create Service Principal
+```
 hcl
 module "ServicePrincipal" {
   source = "./modules/ServicePrincipal"
   service_principal_name = var.service_principal_name
   providers = { azuread = azuread.aad }
 }
-3. Assign Roles
+```
+
+#### 3. Assign Roles
+```
 hcl
 resource "azurerm_role_assignment" "rolespn" {
   scope                = "/subscriptions/${var.SUB_ID}"
   role_definition_name = "Contributor"
   principal_id         = module.ServicePrincipal.service_principal_object_id
 }
-4. Provision Key Vault
+```
+
+#### 4. Provision Key Vault
+```
 hcl
 module "keyvault" {
   source = "./modules/keyvault"
   ...
   providers = { azurerm = azurerm.sp }
 }
-5. Store SP Secret
+```
+
+#### 5. Store SP Secret
+```
 hcl
 resource "azurerm_key_vault_secret" "example" {
   provider     = azurerm.sp
@@ -87,29 +104,39 @@ resource "azurerm_key_vault_secret" "example" {
   value        = module.ServicePrincipal.client_secret
   key_vault_id = module.keyvault.keyvault_id
 }
-6. Deploy AKS Cluster
+```
+
+#### 6. Deploy AKS Cluster
+```
 hcl
 module "aks" {
   source = "./modules/aks"
   ...
   providers = { azurerm = azurerm.sp }
 }
-7. Export Kubeconfig
+```
+
+#### 7. Export Kubeconfig
+```
 hcl
 resource "local_file" "kubeconfig" {
   filename = "./kubeconfig"
   content  = module.aks.config
 }
-🧪 Validation
+```
+
+### 🧪 Validation
 Run terraform plan to preview changes
 
 Run terraform apply to deploy
 
 Test access:
 
-bash
+```
 kubectl get nodes --kubeconfig=./kubeconfig
-📘 Documentation
+```
+
+### 📘 Documentation
 README.md: Overview, architecture diagram, usage instructions
 
 troubleshooting.md: Common errors (403, RBAC, VM size, zone support)
